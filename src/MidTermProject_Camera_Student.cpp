@@ -41,15 +41,25 @@ int main(int argc, const char *argv[])
     bool bVis = false;            // visualize results
 
     /* Create two vectors for detector types and descriptor types */
-    vector<string> detTypes = {"HARRIS", "SHITOMASI", "FAST", "SIFT", "ORB", "AKAZE", "BRISK"};
-    vector<string> descTypes = {"BRIEF", "SIFT", "ORB", "AKAZE", "FREAK"};
+    vector<string> detTypes = { "SHITOMASI", "HARRIS", "FAST", "SIFT", "ORB", "AKAZE", "BRISK"};
+    vector<string> descTypes = {"SIFT", "AKAZE", "ORB", "BRIEF", "FREAK"};
 
     /* Perform metrics for all different detector types and descriptor types */
     for (string detectorType : detTypes)
     {
+        cout << "detector Type: " << detectorType << endl;
         for (string descriptorType : descTypes)
         {
-            if (detectorType == "SIFT" && descriptorType == "ORB") 
+            cout << "descriptor Type: " << descriptorType << endl;
+            if (
+                (detectorType == "SIFT" && descriptorType == "ORB") ||
+                (detectorType == "SIFT" && descriptorType == "AKAZE") ||
+                (detectorType == "ORB" && descriptorType == "AKAZE") ||
+                (detectorType == "HARRIS" && descriptorType == "AKAZE") ||
+                (detectorType == "SHITOMASI" && descriptorType == "AKAZE") ||
+                (detectorType == "FAST" && descriptorType == "AKAZE") ||
+                (detectorType == "BRISK" && descriptorType == "AKAZE")
+               )
             {
                 continue;
             }
@@ -169,12 +179,13 @@ int main(int argc, const char *argv[])
 
                 if (dataBuffer.size() > 1) // wait until at least two images have been processed
                 {
+                    cout << "Entered here" << endl;
 
                     /* MATCH KEYPOINT DESCRIPTORS */
 
                     vector<cv::DMatch> matches;
                     string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-                    string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+                    string descriptorDistType = "DES_BINARY"; // DES_BINARY, DES_HOG
                     string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
                     //// STUDENT ASSIGNMENT
@@ -184,12 +195,12 @@ int main(int argc, const char *argv[])
                     /* Since SIFT and AKAZE are non binary descriptors, we cannot use Hammond distance to calculate matches */
                     if (descriptorType.compare("SIFT") || descriptorType.compare("AKAZE"))
                     {
-                        descriptorType = "DES_HOG";
+                        descriptorDistType = "DES_HOG";
                     }
 
                     matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                                     (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
-                                    matches, descriptorType, matcherType, selectorType);
+                                    matches, descriptorDistType, matcherType, selectorType);
 
                     //// EOF STUDENT ASSIGNMENT
 
@@ -213,7 +224,7 @@ int main(int argc, const char *argv[])
                         cv::namedWindow(windowName, 7);
                         cv::imshow(windowName, matchImg);
                         cout << "Press key to continue to next image" << endl;
-                        cv::waitKey(10); // wait for key to be pressed
+                        cv::waitKey(100); // wait for key to be pressed
                     }
                     bVis = false;
                 }

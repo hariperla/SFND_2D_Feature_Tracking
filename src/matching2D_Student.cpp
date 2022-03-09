@@ -5,7 +5,7 @@ using namespace std;
 
 // Find best matches for keypoints in two camera images based on several matching methods
 void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::KeyPoint> &kPtsRef, cv::Mat &descSource, cv::Mat &descRef,
-                      std::vector<cv::DMatch> &matches, std::string descriptorType, std::string matcherType, std::string selectorType)
+                      std::vector<cv::DMatch> &matches, std::string descriptorDistType, std::string matcherType, std::string selectorType)
 {
     // configure matcher
     bool crossCheck = false;
@@ -13,8 +13,13 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
-        matcher = cv::BFMatcher::create(normType, crossCheck);
+        if (descriptorDistType.compare("DES_BINARY") == 0) 
+        {
+            matcher = cv::BFMatcher::create(cv::NORM_HAMMING, crossCheck);
+        } else if (descriptorDistType.compare("DES_HOG") == 0) 
+        {
+            matcher = cv::BFMatcher::create(cv::NORM_L2, crossCheck);
+        }
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
@@ -74,23 +79,53 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     }
     else if (descriptorType.compare("FREAK") == 0)
     {
-        extractor = cv::xfeatures2d::FREAK::create();
+        bool orientationNormalized = true;
+        bool scaleNormalized = true;
+        float patternScale = 22.0f;
+        int nOctaves = 4;
+        extractor = cv::xfeatures2d::FREAK::create(orientationNormalized, scaleNormalized, patternScale, nOctaves);
     }
     else if (descriptorType.compare("SIFT") == 0)
     {
-        extractor = cv::SiftDescriptorExtractor::create();
+        int nfeatures = 0;
+        int nOctaveLayers = 3;
+        double contrastThreshold = 0.04;
+        double edgeThreshold = 10; 
+        double sigma = 1.6;
+        extractor = cv::SiftDescriptorExtractor::create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
     }
     else if (descriptorType.compare("ORB") == 0)
     {
-        extractor = cv::ORB::create();
+        int nfeatures = 500;
+        float scaleFactor = 1.2f;
+        int nlevels = 8;
+        int edgeThreshold = 31;
+        int firstLevel = 0;
+        int WTA_K = 2;
+        cv::ORB::ScoreType scoreType = cv::ORB::HARRIS_SCORE;
+        int patchSize = 31;
+        int fastThreshold = 20;
+        extractor = cv::ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel,
+            WTA_K, scoreType, patchSize, fastThreshold);
+        //extractor = cv::ORB::create();
     }
     else if (descriptorType.compare("AKAZE") == 0)
     {
-        extractor = cv::AKAZE::create();
+        cv::AKAZE::DescriptorType descriptor_type = cv::AKAZE::DESCRIPTOR_MLDB;
+        int descriptor_size = 0;
+        int descriptor_channels = 3;
+        float threshold = 0.001f;
+        int nOctaves = 4;
+        int nOctaveLayers = 4;
+        cv::KAZE::DiffusivityType diffusivity = cv::KAZE::DIFF_PM_G2;
+        extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels, 
+            threshold, nOctaves, nOctaveLayers, diffusivity);
     }
     else if (descriptorType.compare("BRIEF") == 0)
     {
-        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+        int bytes=32;
+        bool use_orientation = false;
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create(bytes,use_orientation);
     }
     else
     {
@@ -176,7 +211,7 @@ void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis
                 newKeyPoint.response = response;
                 // perform non-maximum suppression (NMS) in local neighbourhood around new key point
                 bool bOverlap = false;
-                for (int k = 0; i < keypoints.size(); k++)
+                for (int k = 0; k < keypoints.size(); k++)
                 {
                     /* code */
                     float keyPtOverlap = cv::KeyPoint::overlap(newKeyPoint,keypoints.at(k));
