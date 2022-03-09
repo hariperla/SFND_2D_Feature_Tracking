@@ -19,7 +19,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
         // We do this conversion to avoid errors based on current openCV implementation of FLANN method
-        if (descSource.type() != CV_32F)
+        if (descSource.type() != CV_32F || descRef.type() != CV_32F)
         {
             descSource.convertTo(descSource,CV_32F);
             descRef.convertTo(descRef,CV_32F);
