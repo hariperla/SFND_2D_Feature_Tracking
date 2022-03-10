@@ -6,12 +6,14 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
+#include <filesystem>
 
 #include "dataStructures.h"
 #include "matching2D.hpp"
@@ -42,7 +44,15 @@ int main(int argc, const char *argv[])
 
     /* Create two vectors for detector types and descriptor types */
     vector<string> detTypes = { "SHITOMASI", "HARRIS", "FAST", "SIFT", "ORB", "AKAZE", "BRISK"};
-    vector<string> descTypes = {"SIFT", "AKAZE", "ORB", "BRIEF", "FREAK"};
+    //vector<string> descTypes = {"SIFT", "ORB", "BRIEF", "FREAK", "AKAZE","BRISK"};
+    vector<string> descTypes = {"ORB"};
+
+    vector <int> saveKeyPoints;
+    vector <vector<int>> keyPtsWithDetectors;
+    vector <vector<int>> matchesVec;
+    vector <double> runTime;
+    vector <double> avgRunTime;
+    vector <int> saveMatchedPoints;
 
     /* Perform metrics for all different detector types and descriptor types */
     for (string detectorType : detTypes)
@@ -100,6 +110,7 @@ int main(int argc, const char *argv[])
                 // extract 2D keypoints from current image
                 vector<cv::KeyPoint> keypoints; // create empty feature list for current image
                 //string detectorType = "ORB";
+                double detectorRunTime;
 
                 //// STUDENT ASSIGNMENT
                 //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -107,16 +118,16 @@ int main(int argc, const char *argv[])
 
                 if (detectorType.compare("SHITOMASI") == 0)
                 {
-                    detKeypointsShiTomasi(keypoints, imgGray, false);
+                   detectorRunTime = detKeypointsShiTomasi(keypoints, imgGray, false);
                 }
                 else if (detectorType.compare("HARRIS") == 0)
                 {
-                    detKeypointsHarris(keypoints, imgGray, false);
+                    detectorRunTime = detKeypointsHarris(keypoints, imgGray, false);
                 }
                 else
                 {
                     //...
-                    detKeypointsModern(keypoints, imgGray, detectorType, false);
+                    detectorRunTime = detKeypointsModern(keypoints, imgGray, detectorType, false);
                 }
                 //// EOF STUDENT ASSIGNMENT
 
@@ -160,6 +171,7 @@ int main(int argc, const char *argv[])
                 // push keypoints and descriptor for current frame to end of data buffer
                 (dataBuffer.end() - 1)->keypoints = keypoints;
                 cout << "#2 : DETECT KEYPOINTS done" << endl;
+                saveKeyPoints.push_back(keypoints.size());
 
                 /* EXTRACT KEYPOINT DESCRIPTORS */
 
@@ -169,8 +181,12 @@ int main(int argc, const char *argv[])
 
                 cv::Mat descriptors;
                 //string descriptorType = "ORB"; // BRIEF, ORB, FREAK, AKAZE, SIFT
-                descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+                double descriptorRunTime;
+                descriptorRunTime = descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+                cout << descriptorRunTime << endl;
                 //// EOF STUDENT ASSIGNMENT
+                //cout << "descriptor run time: " << descriptorRunTime << endl;
+                runTime.push_back((detectorRunTime + descriptorRunTime));
 
                 // push descriptors for current frame to end of data buffer
                 (dataBuffer.end() - 1)->descriptors = descriptors;
@@ -206,6 +222,7 @@ int main(int argc, const char *argv[])
 
                     // store matches in current data frame
                     (dataBuffer.end() - 1)->kptMatches = matches;
+                    saveMatchedPoints.push_back(matches.size());
 
                     cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
 
@@ -228,8 +245,45 @@ int main(int argc, const char *argv[])
                     }
                     bVis = false;
                 }
-            } // eof loop over all images
-        }  
+            } // eof loop over all images 
+        }
+        keyPtsWithDetectors.push_back(saveKeyPoints);
+        saveKeyPoints.clear();  // Clear after each detector, already existing keypoints as we do not want to keep adding
+        matchesVec.push_back(saveMatchedPoints);
+        saveMatchedPoints.clear();// Clear after each detector, already existing keypoints as we do not want to keep adding 
+        // Compute avg run time for all 10 images for a particular detector - descriptor type
+        avgRunTime.push_back(accumulate(runTime.begin(),runTime.end(),0)/(runTime.size() * 1.0));  
+    }
+
+    /* Store the final timing results in a csv */
+    ofstream detDescRunTime;
+    detDescRunTime.open("../SFND_2d_cam_midterm_task9_PerformanceMetrics.csv", ios::app);
+
+    /* Loop through the detector and descriptor types and print the avg run times for each combination */
+    for (size_t r = 0; r < avgRunTime.size(); r++)
+    {
+        detDescRunTime << detTypes.at(r) << "-" << descTypes.at(0) << "," << avgRunTime.at(r) << endl;
+        cout << "Avg Run Time for " << detTypes.at(r) << "-" << descTypes.at(0) << ":" << fixed << setprecision(3) << avgRunTime.at(r) << endl;
+    }
+    detDescRunTime << endl;
+    detDescRunTime.close();   
+
+    /* Write the results to a csv */
+    ofstream keyPointsCSV;
+    keyPointsCSV.open("../SFND_2d_cam_midterm_task7_KeyPointsDistribution.csv", ios::app);
+    if (keyPointsCSV)
+    {
+        for (size_t rows = 0; rows < keyPtsWithDetectors.size(); rows++)
+        {
+            keyPointsCSV << detTypes.at(rows);
+            for (size_t cols = 0; cols < keyPtsWithDetectors[rows].size(); cols++)
+            {
+                keyPointsCSV << "," << keyPtsWithDetectors.at(rows).at(cols);
+            }
+            keyPointsCSV << endl;
+        }
+    keyPointsCSV << endl;
+    keyPointsCSV.close();
     }
     return 0;
 }
