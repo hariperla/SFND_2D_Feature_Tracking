@@ -42,6 +42,18 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 3. Compile: `cmake .. && make`
 4. Run it: `./2D_feature_tracking`.
 
+#### Task 1 - Create and use a ring buffer
+```
+// push image into data frame buffer
+  DataFrame frame;
+  frame.cameraImg = imgGray;
+  if (dataBuffer.size() > dataBufferSize)
+  {
+    dataBuffer.erase(dataBuffer.begin()); // Erase the first element
+  }
+  dataBuffer.push_back(frame); // Push the element into the back of the frame
+```
+
 #### Task 7 - Performance evaluation of keypoints for different detectors
 > Detecting key points using different methods. 
 > 
