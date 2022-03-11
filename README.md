@@ -44,8 +44,9 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 
 ## Task 7
 1. Detecting key points using different methods. Below is a csv indicating all the keypoints found for 10 images
+|         | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---------|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 |SHITOMASI|125|118|123|120|120|113|114|123|111|112|
-|---------|---|---|---|---|---|---|---|---|---|---|
 |HARRIS   |17 |14 |18 |21 |26 |43 |18 |31 |26 |34 |
 |FAST     |419|427|404|423|386|414|418|406|396|401|
 |SIFT     |138|132|124|137|134|140|137|148|159|137|
