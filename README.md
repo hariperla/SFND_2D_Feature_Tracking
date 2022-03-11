@@ -42,8 +42,9 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 3. Compile: `cmake .. && make`
 4. Run it: `./2D_feature_tracking`.
 
-### Task 7 - Performance evaluation of keypoints for different detectors
+#### Task 7 - Performance evaluation of keypoints for different detectors
 > Detecting key points using different methods. 
+> 
 > Below is a markdown indicating all the keypoints found for 10 images using different detectors
 > 
 | # |DETECTOR |0  |1  |2  |3  |4  |5  |6  |7  |8  |9  |
@@ -56,4 +57,48 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 |6  |AKAZE    |166|157|161|155|163|164|173|175|177|179|
 |7  |BRISK    |264|282|282|277|297|279|289|272|266|254|
 
+#### Task 8 - Performance evaluation of matched keypoints using different detector and descriptor combinations
+> Compare matched keypoints for different DETECTOR-DESCRIPTOR combinations
+>
+> Combinations are DETECTORS = { "SHITOMASI", "HARRIS", "FAST", "SIFT", "ORB", "AKAZE", "BRISK"}
+>
+> DESCRIPTORS  = {"SIFT", "ORB", "BRIEF", "FREAK", "AKAZE","BRISK"}
+>
+|DETECTOR-DESCRIPTOR|0  |1  |2  |3  |4  |5  |6  |7  |8  |9  |
+|-------------------|---|---|---|---|---|---|---|---|---|---|
+|SHITOMASI-SIFT     |112|109|104|103|99 |101|96 |106|97 |100|
+|HARRIS-SIFT        |13 |14 |11 |16 |19 |22 |22 |13 |24 |22 |
+|FAST-SIFT          |4  |316|325|297|311|291|326|315|300|301|
+|SIFT-SIFT          |5  |82 |81 |85 |93 |90 |81 |82 |102|104|
+|ORB-SIFT           |3  |67 |79 |78 |79 |82 |95 |95 |94 |94 |
+|AKAZE-SIFT         |0  |134|134|130|136|137|147|147|154|151|
+|BRISK-SIFT         |2  |182|193|169|183|171|195|194|176|183|
+|SHITOMASI-ORB      |87 |82 |87 |90 |83 |77 |84 |86 |89 |84 |
+|HARRIS-ORB         |26 |11 |11 |15 |17 |20 |18 |12 |21 |20 |
+|FAST-ORB           |7  |218|229|219|222|224|223|246|234|234|
+|ORB-ORB            |11 |40 |52 |46 |54 |53 |65 |68 |65 |72 |
+|AKAZE-ORB          |3  |102|91 |97 |86 |95 |114|107|112|118|
+|BRISK-ORB          |2  |97 |103|91 |92 |82 |117|109|108|114|
+|SHITOMASI-BRIEF    |96 |93 |92 |89 |92 |93 |85 |91 |85 |90 |
+|HARRIS-BRIEF       |29 |12 |12 |14 |17 |17 |16 |12 |20 |21 |
+|FAST-BRIEF         |9  |229|253|233|247|224|243|251|260|238|
+|SIFT-BRIEF         |65 |63 |72 |64 |66 |52 |57 |72 |67 |84 |
+|ORB-BRIEF          |8  |37 |38 |37 |53 |42 |64 |58 |62 |59 |
+|AKAZE-BRIEF        |31 |108|116|110|109|116|129|133|135|131|
+|BRISK-BRIEF        |26 |138|166|129|141|148|155|158|161|148|
+|SHITOMASI-FREAK    |68 |69 |64 |64 |63 |61 |62 |62 |62 |64 |
+|HARRIS-FREAK       |15 |11 |9  |12 |14 |12 |18 |11 |16 |17 |
+|FAST-FREAK         |3  |175|193|157|174|156|176|193|171|175|
+|SIFT-FREAK         |14 |58 |63 |53 |63 |50 |50 |46 |52 |65 |
+|ORB-FREAK          |15 |39 |33 |38 |41 |33 |40 |42 |39 |44 |
+|AKAZE-FREAK        |0  |104|104|92 |101|97 |111|124|117|116|
+|BRISK-FREAK        |8  |112|123|109|118|102|127|135|133|131|
+|AKAZE-AKAZE        |128|128|125|117|121|132|137|140|144|133|
+|SHITOMASI-BRISK    |84 |80 |73 |77 |74 |70 |79 |81 |72 |75 |
+|HARRIS-BRISK       |12 |11 |9  |10 |11 |16 |14 |12 |21 |17 |
+|FAST-BRISK         |5  |213|216|187|205|185|200|215|203|208|
+|SIFT-BRISK         |13 |57 |63 |58 |61 |55 |52 |54 |63 |73 |
+|ORB-BRISK          |2  |60 |65 |65 |76 |72 |83 |83 |73 |72 |
+|AKAZE-BRISK        |0  |126|112|121|117|114|119|134|140|127|
+|BRISK-BRISK        |3  |138|144|133|144|139|155|137|150|158|
 
