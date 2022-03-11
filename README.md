@@ -150,3 +150,12 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 |ORB-AKAZE          |nan    |
 |BRISK-AKAZE        |nan    |
 
+> This concludes the analysis and gives us our top 3 performers as
+>
+|DETECTOR-DESCRIPTOR|TIME   |
+|-------------------|-------|
+|FAST-BRIEF         |3.70788|
+|FAST-ORB           |4.23225|
+|FAST-BRISK         |4.85147|
+>
+>
