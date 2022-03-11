@@ -23,7 +23,6 @@ using namespace std;
 /* MAIN PROGRAM */
 int main(int argc, const char *argv[])
 {
-
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location
@@ -45,7 +44,7 @@ int main(int argc, const char *argv[])
     /* Create two vectors for detector types and descriptor types */
     vector<string> detTypes = { "SHITOMASI", "HARRIS", "FAST", "SIFT", "ORB", "AKAZE", "BRISK"};
     //vector<string> descTypes = {"SIFT", "ORB", "BRIEF", "FREAK", "AKAZE","BRISK"};
-    vector<string> descTypes = {"ORB"};
+    vector<string> descTypes = {"SIFT"};
 
     vector <int> saveKeyPoints;
     vector <vector<int>> keyPtsWithDetectors;
@@ -53,6 +52,7 @@ int main(int argc, const char *argv[])
     vector <double> runTime;
     vector <double> avgRunTime;
     vector <int> saveMatchedPoints;
+    vector<vector<double>> runTimeAllImages;
 
     /* Perform metrics for all different detector types and descriptor types */
     for (string detectorType : detTypes)
@@ -195,8 +195,6 @@ int main(int argc, const char *argv[])
 
                 if (dataBuffer.size() > 1) // wait until at least two images have been processed
                 {
-                    cout << "Entered here" << endl;
-
                     /* MATCH KEYPOINT DESCRIPTORS */
 
                     vector<cv::DMatch> matches;
@@ -251,8 +249,18 @@ int main(int argc, const char *argv[])
         saveKeyPoints.clear();  // Clear after each detector, already existing keypoints as we do not want to keep adding
         matchesVec.push_back(saveMatchedPoints);
         saveMatchedPoints.clear();// Clear after each detector, already existing keypoints as we do not want to keep adding 
+
         // Compute avg run time for all 10 images for a particular detector - descriptor type
-        avgRunTime.push_back(accumulate(runTime.begin(),runTime.end(),0)/(runTime.size() * 1.0));  
+        double tot_time = 0.0;
+        for (size_t p = 0; p < runTime.size(); p++)
+        {
+            tot_time += runTime.at(p);
+        }
+        double avg_time = tot_time/(runTime.size() * 1.0);
+        avgRunTime.push_back(avg_time);
+        
+        runTimeAllImages.push_back(runTime);
+        runTime.clear();
     }
 
     /* Store the final timing results in a csv */
@@ -263,27 +271,40 @@ int main(int argc, const char *argv[])
     for (size_t r = 0; r < avgRunTime.size(); r++)
     {
         detDescRunTime << detTypes.at(r) << "-" << descTypes.at(0) << "," << avgRunTime.at(r) << endl;
-        cout << "Avg Run Time for " << detTypes.at(r) << "-" << descTypes.at(0) << ":" << fixed << setprecision(3) << avgRunTime.at(r) << endl;
+        //cout << "Avg Run Time for " << detTypes.at(r) << "-" << descTypes.at(0) << ":" << fixed << avgRunTime.at(r) << endl;
     }
     detDescRunTime << endl;
     detDescRunTime.close();   
 
     /* Write the results to a csv */
-    ofstream keyPointsCSV;
+    /* ofstream keyPointsCSV;
     keyPointsCSV.open("../SFND_2d_cam_midterm_task7_KeyPointsDistribution.csv", ios::app);
-    if (keyPointsCSV)
+
+    for (size_t rows = 0; rows < keyPtsWithDetectors.size(); rows++)
     {
-        for (size_t rows = 0; rows < keyPtsWithDetectors.size(); rows++)
+        keyPointsCSV << detTypes.at(rows);
+        for (size_t cols = 0; cols < keyPtsWithDetectors[rows].size(); cols++)
         {
-            keyPointsCSV << detTypes.at(rows);
-            for (size_t cols = 0; cols < keyPtsWithDetectors[rows].size(); cols++)
-            {
-                keyPointsCSV << "," << keyPtsWithDetectors.at(rows).at(cols);
-            }
-            keyPointsCSV << endl;
+            keyPointsCSV << "," << keyPtsWithDetectors.at(rows).at(cols);
         }
-    keyPointsCSV << endl;
-    keyPointsCSV.close();
+        keyPointsCSV << endl;
     }
+    keyPointsCSV << endl; */
+
+    /* Store matched keypoint results in a file */
+    ofstream matchedKeyPtsFile;
+    matchedKeyPtsFile.open("../SFND_2d_cam_midterm_task8_MatchedKeyPoints.csv",ios::app);
+    for (size_t rows = 0; rows < matchesVec.size(); rows++)
+    {
+        matchedKeyPtsFile << detTypes.at(rows) << "-" << descTypes.at(0);
+        for (size_t cols = 0; cols < matchesVec[rows].size(); cols++)
+        {
+            matchedKeyPtsFile << "," << matchesVec.at(rows).at(cols);
+        }
+        matchedKeyPtsFile << endl;
+    }
+    matchedKeyPtsFile << endl;
+    matchedKeyPtsFile.close();
+
     return 0;
 }

@@ -79,24 +79,26 @@ double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &des
     }
     else if (descriptorType.compare("FREAK") == 0)
     {
-        bool orientationNormalized = true;
+        /* bool orientationNormalized = true;
         bool scaleNormalized = true;
         float patternScale = 22.0f;
-        int nOctaves = 4;
-        extractor = cv::xfeatures2d::FREAK::create(orientationNormalized, scaleNormalized, patternScale, nOctaves);
+        int nOctaves = 4; */
+        //extractor = cv::xfeatures2d::FREAK::create(orientationNormalized, scaleNormalized, patternScale, nOctaves);
+        extractor = cv::xfeatures2d::FREAK::create();
     }
     else if (descriptorType.compare("SIFT") == 0)
     {
-        int nfeatures = 0;
+        /* int nfeatures = 0;
         int nOctaveLayers = 3;
         double contrastThreshold = 0.04;
         double edgeThreshold = 10; 
-        double sigma = 1.6;
-        extractor = cv::SiftDescriptorExtractor::create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
+        double sigma = 1.6; */
+        //extractor = cv::SiftDescriptorExtractor::create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
+        extractor = cv::SiftDescriptorExtractor::create();
     }
     else if (descriptorType.compare("ORB") == 0)
     {
-        int nfeatures = 500;
+        /* int nfeatures = 500;
         float scaleFactor = 1.2f;
         int nlevels = 8;
         int edgeThreshold = 31;
@@ -104,28 +106,30 @@ double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &des
         int WTA_K = 2;
         cv::ORB::ScoreType scoreType = cv::ORB::HARRIS_SCORE;
         int patchSize = 31;
-        int fastThreshold = 20;
-        extractor = cv::ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel,
-            WTA_K, scoreType, patchSize, fastThreshold);
-        //extractor = cv::ORB::create();
+        int fastThreshold = 20; */
+        //extractor = cv::ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel,
+        //    WTA_K, scoreType, patchSize, fastThreshold);
+        extractor = cv::ORB::create();
     }
     else if (descriptorType.compare("AKAZE") == 0)
     {
-        cv::AKAZE::DescriptorType descriptor_type = cv::AKAZE::DESCRIPTOR_MLDB;
+        /* cv::AKAZE::DescriptorType descriptor_type = cv::AKAZE::DESCRIPTOR_MLDB;
         int descriptor_size = 0;
         int descriptor_channels = 3;
         float threshold = 0.001f;
         int nOctaves = 4;
         int nOctaveLayers = 4;
-        cv::KAZE::DiffusivityType diffusivity = cv::KAZE::DIFF_PM_G2;
-        extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels, 
-            threshold, nOctaves, nOctaveLayers, diffusivity);
+        cv::KAZE::DiffusivityType diffusivity = cv::KAZE::DIFF_PM_G2; */
+        //extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels, 
+        //    threshold, nOctaves, nOctaveLayers, diffusivity);
+        extractor = cv::AKAZE::create();
     }
     else if (descriptorType.compare("BRIEF") == 0)
     {
-        int bytes=32;
-        bool use_orientation = false;
-        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create(bytes,use_orientation);
+        /* int bytes=32;
+        bool use_orientation = false; */
+        //extractor = cv::xfeatures2d::BriefDescriptorExtractor::create(bytes,use_orientation);
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
     }
     else
     {
