@@ -42,8 +42,9 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 3. Compile: `cmake .. && make`
 4. Run it: `./2D_feature_tracking`.
 
-## Task 7
-> Detecting key points using different methods. Below is a csv indicating all the keypoints found for 10 images
+### Task 7 - Performance evaluation of keypoints for different detectors
+> Detecting key points using different methods. 
+> Below is a markdown indicating all the keypoints found for 10 images using different detectors
 > 
 | # |DETECTOR |0  |1  |2  |3  |4  |5  |6  |7  |8  |9  |
 |---|---------|---|---|---|---|---|---|---|---|---|---|
