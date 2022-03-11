@@ -44,4 +44,11 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 
 ## Task 7
 1. Detecting key points using different methods. Below is a csv indicating all the keypoints found for 10 images
-<csv src="SFND_2d_cam_midterm_task7_KeyPointsDistribution.csv" width="600" height="400" />
+|SHITOMASI|125|118|123|120|120|113|114|123|111|112|
+|---------|---|---|---|---|---|---|---|---|---|---|
+|HARRIS   |17 |14 |18 |21 |26 |43 |18 |31 |26 |34 |
+|FAST     |419|427|404|423|386|414|418|406|396|401|
+|SIFT     |138|132|124|137|134|140|137|148|159|137|
+|ORB      |92 |102|106|113|109|125|130|129|127|128|
+|AKAZE    |166|157|161|155|163|164|173|175|177|179|
+|BRISK    |264|282|282|277|297|279|289|272|266|254|
