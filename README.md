@@ -41,3 +41,7 @@ Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windo
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./2D_feature_tracking`.
+
+## Task 7
+1. Detecting key points using different methods. Below is a csv indicating all the keypoints found for 10 images
+<csv src="SFND_2d_cam_midterm_task7_KeyPointsDistribution.csv" width="600" height="400" />
