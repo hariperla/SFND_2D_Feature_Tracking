@@ -183,7 +183,6 @@ int main(int argc, const char *argv[])
                 //string descriptorType = "ORB"; // BRIEF, ORB, FREAK, AKAZE, SIFT
                 double descriptorRunTime;
                 descriptorRunTime = descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
-                cout << descriptorRunTime << endl;
                 //// EOF STUDENT ASSIGNMENT
                 //cout << "descriptor run time: " << descriptorRunTime << endl;
                 runTime.push_back((detectorRunTime + descriptorRunTime));

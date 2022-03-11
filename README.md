@@ -11,47 +11,108 @@ The idea of the camera course is to build a collision detection system - that's 
 
 See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
 
-## Dependencies for Running Locally
-1. cmake >= 2.8
- * All OSes: [click here for installation instructions](https://cmake.org/install/)
-
-2. make >= 4.1 (Linux, Mac), 3.81 (Windows)
- * Linux: make is installed by default on most Linux distros
- * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
- * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-
-3. OpenCV >= 4.1
- * All OSes: refer to the [official instructions](https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html)
- * This must be compiled from source using the `-D OPENCV_ENABLE_NONFREE=ON` cmake flag for testing the SIFT and SURF detectors. If using [homebrew](https://brew.sh/): `$> brew install --build-from-source opencv` will install required dependencies and compile opencv with the `opencv_contrib` module by default (no need to set `-DOPENCV_ENABLE_NONFREE=ON` manually). 
- * The OpenCV 4.1.0 source code can be found [here](https://github.com/opencv/opencv/tree/4.1.0)
-
-4. gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using either [MinGW-w64](http://mingw-w64.org/doku.php/start) or [Microsoft's VCPKG, a C++ package manager](https://docs.microsoft.com/en-us/cpp/build/install-vcpkg?view=msvc-160&tabs=windows). VCPKG maintains its own binary distributions of OpenCV and many other packages. To see what packages are available, type `vcpkg search` at the command prompt. For example, once you've _VCPKG_ installed, you can install _OpenCV 4.1_ with the command:
-```bash
-c:\vcpkg> vcpkg install opencv4[nonfree,contrib]:x64-windows
+## Build instructions and Dependency
+* Original build and dependency instructions are found below
+```https
+https://github.com/udacity/SFND_2D_Feature_Tracking.git
 ```
-Then, add *C:\vcpkg\installed\x64-windows\bin* and *C:\vcpkg\installed\x64-windows\debug\bin* to your user's _PATH_ variable. Also, set the _CMake Toolchain File_ to *c:\vcpkg\scripts\buildsystems\vcpkg.cmake*.
 
-
-## Basic Build Instructions
-
-1. Clone this repo.
-2. Make a build directory in the top level directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./2D_feature_tracking`.
+## Note: 
+```
+Modified return type for detector and descriptor functions to return time it takes to run. 
+```
 
 #### Task 1 - Create and use a ring buffer
-```
+```c++
 // push image into data frame buffer
-  DataFrame frame;
-  frame.cameraImg = imgGray;
-  if (dataBuffer.size() > dataBufferSize)
-  {
-    dataBuffer.erase(dataBuffer.begin()); // Erase the first element
-  }
-  dataBuffer.push_back(frame); // Push the element into the back of the frame
+DataFrame frame;
+frame.cameraImg = imgGray;
+if (dataBuffer.size() > dataBufferSize)
+{
+  dataBuffer.erase(dataBuffer.begin()); // Erase the first element
+}
+dataBuffer.push_back(frame); // Push the element into the back of the frame
+```
+
+#### Task 2 - Detect keypoints using different methods
+```c++
+//// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT,SHI-TOMASI
+if (detectorType.compare("SHITOMASI") == 0)
+{
+    detectorRunTime = detKeypointsShiTomasi(keypoints, imgGray, false);
+}
+else if (detectorType.compare("HARRIS") == 0)
+{
+    detectorRunTime = detKeypointsHarris(keypoints, imgGray, false);
+}
+else
+{
+    //...
+    detectorRunTime = detKeypointsModern(keypoints, imgGray, detectorType, false);
+}
+```
+
+#### Task 3 - Fit a box on proceeding vehicle
+```c++
+// only keep keypoints on the preceding vehicle
+bool bFocusOnVehicle = true;
+cv::Rect vehicleRect(535, 180, 180, 150);
+vector<cv::KeyPoint> kpInRect; // Key points in the rectangle
+if (bFocusOnVehicle)
+{
+    // ...  
+    for (int i = 0; i < keypoints.size(); i++)
+    {
+        if (vehicleRect.contains(keypoints.at(i).pt))
+        {
+            kpInRect.push_back(keypoints.at(i));
+        }
+    } 
+    keypoints = kpInRect; // Update keypoints to the points only in the rectangle    
+    cout << "key points in rectangle = " << keypoints.size() << endl;    
+}
+```
+
+#### Task 4 - Extracting descriptors from the key points
+```c++
+//// -> BRIEF, ORB, FREAK, AKAZE, SIFT, BRISK
+cv::Mat descriptors;
+double descriptorRunTime;
+descriptorRunTime = descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+```
+
+#### Task 5,6 - Add FLANN matching and kNN matching with threshold of 0.8 to filter good matches
+```c++
+else if (matcherType.compare("MAT_FLANN") == 0)
+{
+    // We do this conversion to avoid errors based on current openCV implementation of FLANN method
+    if (descSource.type() != CV_32F || descRef.type() != CV_32F)
+    {
+        descSource.convertTo(descSource,CV_32F);
+        descRef.convertTo(descRef,CV_32F);
+    }
+    /* Create FLANN based descriptor */
+    matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+}
+
+else if (selectorType.compare("SEL_KNN") == 0)
+{ // k nearest neighbors (k=2)
+    vector<vector<cv::DMatch>> knn_matches;
+    /* Find 2 nearest neighbors using knn search */
+    matcher->knnMatch(descSource,descRef,knn_matches,2);
+    /* Filter matches based on dist ratio test */
+    float minDistRatio = 0.8;
+    for (int i = 0; i < knn_matches.size(); i++)
+    {
+        /* code */
+        float distRatio = (knn_matches.at(i).at(0).distance)/(knn_matches.at(i).at(1).distance);
+
+        if (distRatio < minDistRatio)
+        {
+            matches.push_back(knn_matches.at(i).at(0)); // Filter all good matches
+        }
+    }
+}
 ```
 
 #### Task 7 - Performance evaluation of keypoints for different detectors
